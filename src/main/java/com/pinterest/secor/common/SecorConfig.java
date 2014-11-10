@@ -203,6 +203,10 @@ public class SecorConfig {
         return getString("monitoring.blacklist.topics");
     }
 
+    public String getMessageTypeName() {
+        return getString("message.type.name");
+    }
+
     public String getMessageTimestampName() {
         return getString("message.timestamp.name");
     }
