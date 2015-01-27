@@ -59,7 +59,7 @@ public class LogstashMessageParser extends MessageParser {
             if (fieldValue != null) {
                 try {
 
-                    DateTimeFormatter inputFormatter = ISODateTimeFormat.dateTime();
+                    DateTimeFormatter inputFormatter = ISODateTimeFormat.dateOptionalTimeParser();
                     LocalDateTime datetime = LocalDateTime.parse(fieldValue.toString(), inputFormatter);
                     result[1] = datetime.toString(mConfig.getMessageTimestampBucketFormat());
                 } catch (Exception e) {
@@ -74,7 +74,7 @@ public class LogstashMessageParser extends MessageParser {
     }
 
     private String sanitizePath(String path_type) {
-      return path_type.replaceAll(" ","").replaceAll("\\.","-").toLowerCase();
+      return path_type.replaceAll(" ","").replaceAll("\\.","-").replaceAll("---","-").replaceAll("--","-").toLowerCase();
     }
 
 }

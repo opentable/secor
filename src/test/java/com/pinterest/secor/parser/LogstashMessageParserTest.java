@@ -36,6 +36,7 @@ public class LogstashMessageParserTest extends TestCase {
     private Message mFormat3;
     private Message mFormat4;
     private Message mInvalidPath;
+    private Message mDateWithoutMilliseconds;
     private OngoingStubbing<String> getTimestamp;
 
 
@@ -62,9 +63,11 @@ public class LogstashMessageParserTest extends TestCase {
                 .getBytes("UTF-8");
         mFormat4 = new Message("test", 0, 0, format4);
 
-
-        byte invalid_path[] = "{\"@timestamp\":\"33333333333\",\"type\":\"Task Scheduler - Task Published Event - V 1.0\",\"guid\":\"0436b17b-e78a-4e82-accf-743bf1f0b884\"}".getBytes("UTF-8");
+        byte invalid_path[] = "{\"@timestamp\":\"33333333333\",\"type\":\"Task Scheduler - Task Published Event   - V 1.0\",\"guid\":\"0436b17b-e78a-4e82-accf-743bf1f0b884\"}".getBytes("UTF-8");
         mInvalidPath = new Message("test", 0, 0, invalid_path);
+
+        byte date_without_milliseconds[] = "{\"@timestamp\":\"2015-01-27T18:31:01Z\",\"type\":\"sometype-v1\",\"guid\":\"0436b17b-e78a-4e82-accf-743bf1f0b884\"}".getBytes("UTF-8");
+        mDateWithoutMilliseconds = new Message("test", 0, 0, date_without_milliseconds);
 
     }
 
@@ -96,6 +99,11 @@ public class LogstashMessageParserTest extends TestCase {
     public void testSanitizePath() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mInvalidPath);
         assertEquals("taskscheduler-taskpublishedevent-v1-0", result[0]);
+    }
+
+    public void testDateWithoutMilliseconds() throws Exception {
+        String result[] = new LogstashMessageParser(mConfig).extractPartitions(mDateWithoutMilliseconds);
+        assertEquals("2015/01/27/18", result[1]);
     }
 
 }
