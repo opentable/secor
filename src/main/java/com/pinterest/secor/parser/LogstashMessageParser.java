@@ -74,7 +74,8 @@ public class LogstashMessageParser extends MessageParser {
     }
 
     private String sanitizePath(String path_type) {
-      return path_type.replaceAll(" ","").replaceAll("\\.","-").replaceAll("---","-").replaceAll("--","-").toLowerCase();
+      //Accept only lowercase underscores and hypens
+      return path_type.replaceAll("\\.","-").replaceAll("[^a-zA-Z0-9-_]", "").replaceAll("---","-").replaceAll("--","-").replaceAll("___","_").replaceAll("__","_").toLowerCase();
     }
 
 }

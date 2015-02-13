@@ -101,6 +101,13 @@ public class LogstashMessageParserTest extends TestCase {
         assertEquals("taskscheduler-taskpublishedevent-v1-0", result[0]);
     }
 
+    public void testSanitizePathRobust() throws Exception {
+        byte invalid_path2[] = "{\"@timestamp\":\"33333333333\",\"type\":\"search:*results-'|dir-v1\",\"guid\":\"0436b17b-e78a-4e82-accf-743bf1f0b884\"}".getBytes("UTF-8");
+        Message mInvalidPath2 = new Message("test", 0, 0, invalid_path2);
+        String result[] = new LogstashMessageParser(mConfig).extractPartitions(mInvalidPath2);
+        assertEquals("searchresults-dir-v1", result[0]);
+    }
+
     public void testDateWithoutMilliseconds() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mDateWithoutMilliseconds);
         assertEquals("2015/01/27/18", result[1]);
