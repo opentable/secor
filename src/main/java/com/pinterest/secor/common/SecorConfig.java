@@ -175,6 +175,10 @@ public class SecorConfig {
         return getInt("secor.local.log.delete.age.hours");
     }
 
+    public boolean isOstrichEnabled() {
+        return getBoolean("ostrich.enabled");
+    }
+
     public int getOstrichPort() {
         return getInt("ostrich.port");
     }
@@ -254,6 +258,11 @@ public class SecorConfig {
     private int getInt(String name) {
         checkProperty(name);
         return mProperties.getInt(name);
+    }
+
+    private boolean getBoolean(String name) {
+        checkProperty(name);
+        return mProperties.getBoolean(name);
     }
 
     private long getLong(String name) {
