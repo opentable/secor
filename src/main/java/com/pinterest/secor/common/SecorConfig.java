@@ -143,6 +143,10 @@ public class SecorConfig {
         return getString("secor.s3.path");
     }
 
+    public Boolean doesS3PathIncludeTopic() {
+        return getBoolean("secor.s3.path_include_topic");
+    }
+
     public String getLocalPath() {
         return getString("secor.local.path");
     }

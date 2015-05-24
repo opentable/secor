@@ -36,6 +36,9 @@ public class LogFilePathTest extends TestCase {
     private static final String PATH =
         "/some_parent_dir/some_topic/some_partition/some_other_partition/" +
         "10_0_00000000000000000100";
+    private static final String PATH_NO_TOPIC =
+            "/some_parent_dir/some_partition/some_other_partition/" +
+                    "10_0_00000000000000000100";
     private static final String CRC_PATH =
             "/some_parent_dir/some_topic/some_partition/some_other_partition/" +
             ".10_0_00000000000000000100.crc";
@@ -66,6 +69,12 @@ public class LogFilePathTest extends TestCase {
         assertEquals(GENERATION, logFilePath.getGeneration());
         assertEquals(KAFKA_PARTITION, logFilePath.getKafkaPartition());
         assertEquals(LAST_COMMITTED_OFFSET, logFilePath.getOffset());
+    }
+
+    public void testConstructCustomPath() throws Exception {
+        LogFilePath logFilePath = new LogFilePath(PREFIX, TOPIC, PARTITIONS, GENERATION, KAFKA_PARTITION,
+                LAST_COMMITTED_OFFSET, "");
+        assertEquals(PATH_NO_TOPIC, logFilePath.getCustomLogFilePath());
     }
 
     public void testGetters() throws Exception {
