@@ -48,7 +48,7 @@ public class AnalyticsMessageParserTest extends TestCase {
         byte type_track[] = "{\"timestamp\":\"2014-10-17T01:34:22.450+00:00\",\"type\":\"track\",\"event\":\"availability\"}".getBytes("UTF-8");
         mTypeTrack = new Message("test", 0, 0, type_track);
 
-        byte type_identify[] = "{\"timestamp\":\"2014-10-17T01:34:22.450+00:00\",\"type\":\"identify\"}".getBytes("UTF-8");
+        byte type_identify[] = "{\"timestamp\":\"2014-10-17T13:34:22.450+00:00\",\"type\":\"identify\"}".getBytes("UTF-8");
         mTypeIdentify = new Message("test", 0, 0, type_identify);
 
         byte invalid_date[] = "{\"timestamp\":\"222222222222\",\"type\":\"track\",\"event\":\"availability\"}".getBytes("UTF-8");
@@ -68,30 +68,32 @@ public class AnalyticsMessageParserTest extends TestCase {
     @Test
     public void testExtractTypeAndDate() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mTypeTrack);
-        assertEquals("availability", result[0]);
+        assertEquals("01/availability", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
     public void testExtractTypeAndDate2() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mTypeIdentify);
-        assertEquals("identify", result[0]);
-        assertEquals("2014/10/17/01", result[1]);
+        assertEquals("13/identify", result[0]);
+        assertEquals("2014/10/17/13", result[1]);
     }
 
     public void testExtractTypeAndInvalidDate() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mInvalidDate);
-        assertEquals("availability", result[0]);
+        assertEquals("00/availability", result[0]);
         assertEquals("1970/01/01/00", result[1]);
     }
 
     public void testSanitizePath() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mInvalidPath);
-        assertEquals("taskscheduler-taskpublishedevent-v1-0", result[0]);
+        assertEquals("01/taskscheduler-taskpublishedevent-v1-0", result[0]);
+        assertEquals("2014/10/17/01", result[1]);
     }
 
     public void testSanitizePathRobust() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mRobustInvalidPath);
-        assertEquals("searchresults-dir-v1", result[0]);
+        assertEquals("01/searchresults-dir-v1", result[0]);
+        assertEquals("2014/10/17/01", result[1]);
     }
 
     public void testDateWithoutMilliseconds() throws Exception {

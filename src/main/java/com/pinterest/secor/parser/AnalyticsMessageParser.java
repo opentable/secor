@@ -49,11 +49,14 @@ public class AnalyticsMessageParser extends MessageParser {
     public String[] extractPartitions(Message message) {
         JSONObject jsonObject = (JSONObject) JSONValue.parse(message.getPayload());
         String result[] = {defaultType, defaultDate};
+        String event_type = "";
         String analytics_type = "";
 
         /**
          * The idea is to store a directory structure that looks like
-         * analytics/identify/2015/05/19/22/xxxxxxxxxxxx.json
+         * analytics-bucket/27/identify/2015/05/19/27/xxxxxxxxxxxx.json
+         *
+         *                  ^-- repeat the hour to spread the load among 24 shards
          *
          * analytics payloads may be of type: "track", event:"user_definded_name"
          *                           or type: "identify"
@@ -69,9 +72,9 @@ public class AnalyticsMessageParser extends MessageParser {
                 analytics_type = fieldType.toString();
                 if (analytics_type.equals("track")) {
                     Object fieldSecondary = jsonObject.get("event");
-                    result[0] = sanitizePath(fieldSecondary.toString());
+                    event_type = sanitizePath(fieldSecondary.toString());
                 } else {
-                    result[0] = analytics_type;
+                    event_type = analytics_type;
                 }
             }
 
@@ -87,6 +90,10 @@ public class AnalyticsMessageParser extends MessageParser {
                 }
             }
         }
+
+        // The hour bucket where the event happened
+        String hour = result[1].split("/")[3];
+        result[0] = hour +"/" + event_type;
 
         return result;
     }
