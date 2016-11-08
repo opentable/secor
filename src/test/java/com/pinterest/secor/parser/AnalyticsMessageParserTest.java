@@ -16,22 +16,25 @@
  */
 package com.pinterest.secor.parser;
 
-import junit.framework.TestCase;
+import com.pinterest.secor.common.SecorConfig;
+import com.pinterest.secor.message.Message;
+import com.pinterest.secor.message.ParsedMessage;
+
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.message.Message;
-import com.pinterest.secor.message.ParsedMessage;
+import junit.framework.TestCase;
 
 @RunWith(PowerMockRunner.class)
 public class AnalyticsMessageParserTest extends TestCase {
 
     private SecorConfig mConfig;
+    private AnalyticsMessageParser parser;
     private Message mTypeTrack;
     private Message mTypeIdentify;
     private Message mInvalidDate;
@@ -68,53 +71,65 @@ public class AnalyticsMessageParserTest extends TestCase {
         byte simulation[] = "{\"timestamp\":\"2015-01-27T18:31:01Z\",\"type\":\"track\",\"event\":\"sometype-v1\",\"properties\":{\"platform\":\"SIMULATION\"}}".getBytes("UTF-8");
         mSimulation = new Message("test", 0, 0, simulation);
 
+        parser = new AnalyticsMessageParser(mConfig);
+
+    }
+
+    @Override
+    public void tearDown() {
+        parser = null;
     }
 
     @Test
     public void testExtractTypeAndDate() throws Exception {
-        String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mTypeTrack);
+        String result[] = extractPartitions(mTypeTrack);
         assertEquals("01/availability", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
     @Test
     public void testExtractTypeAndDate2() throws Exception {
-        String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mTypeIdentify);
+        String result[] = extractPartitions(mTypeIdentify);
         assertEquals("13/identify", result[0]);
         assertEquals("2014/10/17/13", result[1]);
     }
 
     @Test
     public void testExtractTypeAndInvalidDate() throws Exception {
-        String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mInvalidDate);
+        String result[] = extractPartitions(mInvalidDate);
         assertEquals("00/availability", result[0]);
         assertEquals("1970/01/01/00", result[1]);
     }
 
     @Test
     public void testSanitizePath() throws Exception {
-        String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mInvalidPath);
+        String result[] = extractPartitions(mInvalidPath);
         assertEquals("01/taskscheduler-taskpublishedevent-v1-0", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
     @Test
     public void testSanitizePathRobust() throws Exception {
-        String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mRobustInvalidPath);
+        String result[] = extractPartitions(mRobustInvalidPath);
         assertEquals("01/searchresults-dir-v1", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
     @Test
     public void testDateWithoutMilliseconds() throws Exception {
-        String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mDateWithoutMilliseconds);
+        String result[] = extractPartitions(mDateWithoutMilliseconds);
         assertEquals("2015/01/27/18", result[1]);
     }
 
     @Test
     public void testSimulation() throws Exception {
-        final ParsedMessage m = new AnalyticsMessageParser(mConfig).parse(mSimulation);
+        final ParsedMessage m = parser.parse(mSimulation);
         assertNull(m);
+    }
+
+    private String[] extractPartitions(final Message m) {
+        parser.jsonObject = (JSONObject) JSONValue.parse(m.getPayload());
+        return parser.extractPartitions(m);
     }
 
 }

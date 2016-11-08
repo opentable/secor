@@ -18,6 +18,7 @@ package com.pinterest.secor.parser;
 
 import java.util.Map;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
 import com.pinterest.secor.message.ParsedMessage;
@@ -49,7 +50,8 @@ public class AnalyticsMessageParser extends MessageParser {
     protected static final String defaultType = "untyped";
     protected static final String defaultDate = "1970/01/01/00";
 
-    private JSONObject jsonObject;
+    @VisibleForTesting
+    JSONObject jsonObject;
 
     public AnalyticsMessageParser(SecorConfig config) {
         super(config);
