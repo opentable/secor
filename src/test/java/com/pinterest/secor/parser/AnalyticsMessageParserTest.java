@@ -18,7 +18,6 @@ package com.pinterest.secor.parser;
 
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
-import com.pinterest.secor.message.ParsedMessage;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -123,8 +122,7 @@ public class AnalyticsMessageParserTest extends TestCase {
 
     @Test
     public void testSimulation() throws Exception {
-        final ParsedMessage m = parser.parse(mSimulation);
-        assertNull(m);
+        assertNull(parser.parse(mSimulation));
     }
 
     private String[] extractPartitions(final Message m) {
