@@ -26,6 +26,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
+import com.pinterest.secor.message.ParsedMessage;
 
 @RunWith(PowerMockRunner.class)
 public class AnalyticsMessageParserTest extends TestCase {
@@ -37,6 +38,7 @@ public class AnalyticsMessageParserTest extends TestCase {
     private Message mInvalidPath;
     private Message mRobustInvalidPath;
     private Message mDateWithoutMilliseconds;
+    private Message mSimulation;
 
     @Override
     public void setUp() throws Exception {
@@ -62,6 +64,9 @@ public class AnalyticsMessageParserTest extends TestCase {
 
         byte date_without_milliseconds[] = "{\"timestamp\":\"2015-01-27T18:31:01Z\",\"type\":\"track\",\"event\":\"sometype-v1\"}".getBytes("UTF-8");
         mDateWithoutMilliseconds = new Message("test", 0, 0, date_without_milliseconds);
+
+        byte simulation[] = "{\"timestamp\":\"2015-01-27T18:31:01Z\",\"type\":\"track\",\"event\":\"sometype-v1\",\"properties\":{\"platform\":\"SIMULATION\"}}".getBytes("UTF-8");
+        mSimulation = new Message("test", 0, 0, simulation);
 
     }
 
@@ -99,6 +104,12 @@ public class AnalyticsMessageParserTest extends TestCase {
     public void testDateWithoutMilliseconds() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mDateWithoutMilliseconds);
         assertEquals("2015/01/27/18", result[1]);
+    }
+
+    @Test
+    public void testSimulation() throws Exception {
+        final ParsedMessage m = new AnalyticsMessageParser(mConfig).parse(mSimulation);
+        assertNull(m);
     }
 
 }
