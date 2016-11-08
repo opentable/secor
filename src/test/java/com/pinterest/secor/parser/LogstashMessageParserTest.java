@@ -78,29 +78,34 @@ public class LogstashMessageParserTest extends TestCase {
         assertEquals("2014/10/17/01", result[1]);
     }
 
+    @Test
     public void testExtractTypeAndInvalidDate() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mFormat2);
         assertEquals("restaurant-service-v1", result[0]);
         assertEquals("1970/01/01/00", result[1]);
     }
 
+    @Test
     public void testExtractNoTypeAndDate() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mFormat3);
         assertEquals("untyped", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
+    @Test
     public void testExtractNoTypeAndInvalidDate() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mFormat4);
         assertEquals("untyped", result[0]);
         assertEquals("1970/01/01/00", result[1]);
     }
 
+    @Test
     public void testSanitizePath() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mInvalidPath);
         assertEquals("taskscheduler-taskpublishedevent-v1-0", result[0]);
     }
 
+    @Test
     public void testSanitizePathRobust() throws Exception {
         byte invalid_path2[] = "{\"@timestamp\":\"33333333333\",\"type\":\"search:*results-'|dir-v1\",\"guid\":\"0436b17b-e78a-4e82-accf-743bf1f0b884\"}".getBytes("UTF-8");
         Message mInvalidPath2 = new Message("test", 0, 0, invalid_path2);
@@ -108,6 +113,7 @@ public class LogstashMessageParserTest extends TestCase {
         assertEquals("searchresults-dir-v1", result[0]);
     }
 
+    @Test
     public void testDateWithoutMilliseconds() throws Exception {
         String result[] = new LogstashMessageParser(mConfig).extractPartitions(mDateWithoutMilliseconds);
         assertEquals("2015/01/27/18", result[1]);

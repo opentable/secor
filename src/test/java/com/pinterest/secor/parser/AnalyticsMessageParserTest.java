@@ -77,30 +77,35 @@ public class AnalyticsMessageParserTest extends TestCase {
         assertEquals("2014/10/17/01", result[1]);
     }
 
+    @Test
     public void testExtractTypeAndDate2() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mTypeIdentify);
         assertEquals("13/identify", result[0]);
         assertEquals("2014/10/17/13", result[1]);
     }
 
+    @Test
     public void testExtractTypeAndInvalidDate() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mInvalidDate);
         assertEquals("00/availability", result[0]);
         assertEquals("1970/01/01/00", result[1]);
     }
 
+    @Test
     public void testSanitizePath() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mInvalidPath);
         assertEquals("01/taskscheduler-taskpublishedevent-v1-0", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
+    @Test
     public void testSanitizePathRobust() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mRobustInvalidPath);
         assertEquals("01/searchresults-dir-v1", result[0]);
         assertEquals("2014/10/17/01", result[1]);
     }
 
+    @Test
     public void testDateWithoutMilliseconds() throws Exception {
         String result[] = new AnalyticsMessageParser(mConfig).extractPartitions(mDateWithoutMilliseconds);
         assertEquals("2015/01/27/18", result[1]);
