@@ -16,8 +16,12 @@
  */
 package com.pinterest.secor.parser;
 
+import java.util.Map;
+
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
+import com.pinterest.secor.message.ParsedMessage;
+
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import org.joda.time.LocalDateTime;
@@ -31,6 +35,10 @@ import org.slf4j.LoggerFactory;
  * usually named @timestamp in logstash.
  * It uses the ISODateTimeFormat from joda-time library. Used by elasticsearch / logstash
  *
+ * <p>
+ * If the JSON object message has a platform string field under the properties object field equal to "SIMULATION",
+ * {@link #parse(Message)} will return {@code null}.
+ *
  * @see http://joda-time.sourceforge.net/apidocs/org/joda/time/format/ISODateTimeFormat.html
  *
  * @author Pablo Delgado (pablete@gmail.com)
@@ -41,13 +49,35 @@ public class AnalyticsMessageParser extends MessageParser {
     protected static final String defaultType = "untyped";
     protected static final String defaultDate = "1970/01/01/00";
 
+    private JSONObject jsonObject;
+
     public AnalyticsMessageParser(SecorConfig config) {
         super(config);
     }
 
+    /**
+     * Because this method depends on the {@link #jsonObject} state, it is not reentrant.
+     * However, based on {@link com.pinterest.secor.consumer.Consumer usage} in this codebase,
+     * it does not seem like that will be a problem.
+     */
+    @Override
+    public ParsedMessage parse(final Message message) throws Exception {
+        jsonObject = (JSONObject) JSONValue.parse(message.getPayload());
+        try {
+            if (shouldFilter()) {
+                return null;
+            }
+            return super.parse(message);
+        } finally {
+            jsonObject = null;
+        }
+    }
+
+    /**
+     * Note that this depends on the {@link #jsonObject} state.
+     */
     @Override
     public String[] extractPartitions(Message message) {
-        JSONObject jsonObject = (JSONObject) JSONValue.parse(message.getPayload());
         String result[] = {defaultType, defaultDate};
         String event_type = "";
         String analytics_type = "";
@@ -101,6 +131,36 @@ public class AnalyticsMessageParser extends MessageParser {
     private String sanitizePath(String path_type) {
       //Accept only lowercase underscores and hypens
       return path_type.replaceAll("\\.","-").replaceAll("[^a-zA-Z0-9-_]", "").replaceAll("---","-").replaceAll("--","-").replaceAll("___","_").replaceAll("__","_").toLowerCase();
+    }
+
+    /**
+     * Note that this depends on the {@link #jsonObject} state.
+     */
+    private boolean shouldFilter() {
+        if (jsonObject == null) {
+            return false;
+        }
+        if (!jsonObject.containsKey("properties")) {
+            return false;
+        }
+        final Object propertiesObject = jsonObject.get("properties");
+        if (!(propertiesObject instanceof JSONObject)) {
+            return false;
+        }
+        final JSONObject properties = (JSONObject) propertiesObject;
+        if (!properties.containsKey("platform")) {
+            return false;
+        }
+        final Object platformObject = properties.get("platform");
+        if (!(platformObject instanceof String)) {
+            return false;
+        }
+        final String platform = (String) platformObject;
+        final boolean ret = "SIMULATION".equals(platform);
+        if (ret) {
+            LOG.info("filtering platform simulation message {}", jsonObject);
+        }
+        return ret;
     }
 
 }
