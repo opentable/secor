@@ -16,8 +16,6 @@
  */
 package com.pinterest.secor.parser;
 
-import java.util.Map;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
