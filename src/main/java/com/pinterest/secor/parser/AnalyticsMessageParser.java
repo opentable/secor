@@ -16,8 +16,6 @@
  */
 package com.pinterest.secor.parser;
 
-import java.util.Map;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.message.Message;
@@ -25,6 +23,9 @@ import com.pinterest.secor.message.ParsedMessage;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+
+import org.joda.time.Duration;
+import org.joda.time.Instant;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -49,6 +50,11 @@ public class AnalyticsMessageParser extends MessageParser {
     private static final Logger LOG = LoggerFactory.getLogger(AnalyticsMessageParser.class);
     protected static final String defaultType = "untyped";
     protected static final String defaultDate = "1970/01/01/00";
+
+    private static final Duration FILTER_LOG_THRESH = Duration.standardMinutes(10);
+    // Start out last timestamp so that we're guaranteed to log the first time.
+    private Instant lastFilterLog = Instant.now().minus(FILTER_LOG_THRESH).minus(FILTER_LOG_THRESH);
+    private long filterCount = 0;
 
     @VisibleForTesting
     JSONObject jsonObject;
@@ -160,7 +166,12 @@ public class AnalyticsMessageParser extends MessageParser {
         final String platform = (String) platformObject;
         final boolean ret = "SIMULATION".equals(platform);
         if (ret) {
-            LOG.info("filtering platform simulation message {}", jsonObject);
+            ++filterCount;
+            final Instant now = Instant.now();
+            if (now.isAfter(lastFilterLog.plus(FILTER_LOG_THRESH))) {
+                LOG.info("filtered platform simulation messages: {}", filterCount);
+                lastFilterLog = now;
+            }
         }
         return ret;
     }
