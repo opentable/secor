@@ -148,6 +148,16 @@ public class LogFilePath {
         return StringUtils.join(pathElements, "/") + mExtension;
     }
 
+    public String getCustomLogFilePath() {
+        ArrayList<String> customElements = new ArrayList<String>();
+        customElements.add(mPrefix);
+        for (String partition : mPartitions) {
+            customElements.add(partition);
+        }
+        customElements.add(getLogFileBasename());
+        return StringUtils.join(customElements, "/") + mExtension;
+    }
+
     public String getLogFileCrcPath() {
         String basename = "." + getLogFileBasename() + ".crc";
 

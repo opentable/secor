@@ -120,6 +120,7 @@ public class UploaderTest extends TestCase {
                 .thenReturn(11L);
         Mockito.when(mConfig.getS3Bucket()).thenReturn("some_bucket");
         Mockito.when(mConfig.getS3Path()).thenReturn("some_s3_parent_dir");
+        Mockito.when(mConfig.doesS3PathIncludeTopic()).thenReturn(true);
 
         HashSet<LogFilePath> logFilePaths = new HashSet<LogFilePath>();
         logFilePaths.add(mLogFilePath);

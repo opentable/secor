@@ -73,7 +73,12 @@ public class Uploader {
                                              localPath.getOffset(),
                                              localPath.getExtension());
         final String localLogFilename = localPath.getLogFilePath();
-        final String s3LogFilename = s3Path.getLogFilePath();
+        final String s3LogFilename;
+        if (mConfig.doesS3PathIncludeTopic()) {
+            s3LogFilename = s3Path.getLogFilePath();
+        } else {
+            s3LogFilename = s3Path.getCustomLogFilePath();
+        }
         LOG.info("uploading file " + localLogFilename + " to " + s3LogFilename);
         return executor.submit(new Runnable() {
             @Override

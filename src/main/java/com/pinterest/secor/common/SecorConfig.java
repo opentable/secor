@@ -143,6 +143,10 @@ public class SecorConfig {
         return getString("secor.s3.path");
     }
 
+    public Boolean doesS3PathIncludeTopic() {
+        return getBoolean("secor.s3.path_include_topic");
+    }
+
     public String getLocalPath() {
         return getString("secor.local.path");
     }
@@ -175,6 +179,10 @@ public class SecorConfig {
         return getInt("secor.local.log.delete.age.hours");
     }
 
+    public boolean isOstrichEnabled() {
+        return getBoolean("ostrich.enabled");
+    }
+
     public int getOstrichPort() {
         return getInt("ostrich.port");
     }
@@ -201,6 +209,14 @@ public class SecorConfig {
 
     public String getMonitoringBlacklistTopics() {
         return getString("monitoring.blacklist.topics");
+    }
+
+    public String getMessageTypeName() {
+        return getString("message.type.name");
+    }
+
+    public String getMessageTimestampBucketFormat() {
+        return getString("message.timestamp.bucket.format");
     }
 
     public String getMessageTimestampName() {
@@ -246,6 +262,11 @@ public class SecorConfig {
     private int getInt(String name) {
         checkProperty(name);
         return mProperties.getInt(name);
+    }
+
+    private boolean getBoolean(String name) {
+        checkProperty(name);
+        return mProperties.getBoolean(name);
     }
 
     private long getLong(String name) {
